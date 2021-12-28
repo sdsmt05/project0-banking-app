@@ -40,7 +40,9 @@ app.get('/clients/:id', async (req, res)=>{
 //Update client by id
 app.put('/clients/:id', async (req, res)=>{
     try {
+        const {id} = req.params;
         const client: Client = req.body;
+        client.id = id;
         const updatedClient: Client = await clientDao.updateClient(client);
         res.send(updatedClient);
     } catch (error) {
