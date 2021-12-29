@@ -22,19 +22,19 @@ describe("Banking Client Dao Tests", ()=>{
         expect(allClients.length).toBeGreaterThan(0);
     })
 
-    it("Should get client by id", async ()=> {
+    it("Should get client by id", async ()=>{
         const client: Client = await clientDao.getClientById(savedClient.id);
         expect(client.fname).toBe("Donald");
         expect(client.lname).toBe("Duck");
     })
 
-    it("Should throw error if client can't be found", async ()=> {
+    it("Should throw error if client can't be found", async ()=>{
         expect(async ()=> {
             await clientDao.getClientById("invalid-id"); 
         }).rejects.toThrowError(ResourceNotFoundError);
     })
 
-    it("Should update client by id", async ()=> {
+    it("Should update client by id", async ()=>{
         const updatedClient: Client = {id: savedClient.id, fname: "Minnie", lname: "Mouse", accounts: [{name: "Checking", balance: 400}]};
         await clientDao.updateClient(updatedClient);
 
@@ -43,21 +43,21 @@ describe("Banking Client Dao Tests", ()=>{
         expect(retrievedClient.lname).toBe("Mouse");
     })
 
-    it("Should throw error when trying to update client who can't be found", async ()=> {
+    it("Should throw error when trying to update client who can't be found", async ()=>{
         const nonExistingClient: Client = {id: "invalid-id", fname: "Daffy", lname: "Duck", accounts: []};
         expect(async ()=> {
             await clientDao.updateClient(nonExistingClient);
         }).rejects.toThrowError(ResourceNotFoundError);
     })
 
-    it("Should delete client by id", async ()=> {
+    it("Should delete client by id", async ()=>{
         await clientDao.deleteClientById(savedClient.id);
         expect(async ()=> {
             await clientDao.getClientById(savedClient.id);
         }).rejects.toThrowError(ResourceNotFoundError);
     })
 
-    it("Should throw error when trying to delete client who can't be found", async ()=> {
+    it("Should throw error when trying to delete client who can't be found", async ()=>{
         expect(async ()=> {
             await clientDao.deleteClientById("invalid-id"); 
         }).rejects.toThrowError(ResourceNotFoundError);
@@ -80,9 +80,19 @@ describe("Banking Account Service Tests", ()=>{
         expect(savedClient.accounts).toEqual<Account[]>(clientAccounts);
     })
 
-    it("Should get accounts with balance between 300 and 1000 for client", async ()=> {
-        const clientAccounts: Account[] = await clientService.getAccountsByRangeForClient(savedClient.id, 1000, 300);
+    it("Should get accounts with balance between 300 and 1000 for client", async ()=>{
+        const clientAccounts: Account[] = await clientService.getAccountsForClient(savedClient.id, 1000, 300);
         expect(clientAccounts.length).toBe(2);
+    })
+
+    it("Should get accounts with balance greater than 450", async ()=> {
+        const clientAccounts: Account[] = await clientService.getAccountsForClient(savedClient.id, undefined, 450);
+        expect(clientAccounts.length).toBe(2);
+    })
+
+    it("Should get accounts with balance less than 450", async ()=>{
+        const clientAccounts: Account[] = await clientService.getAccountsForClient(savedClient.id, 450, undefined);
+        expect(clientAccounts.length).toBe(1);
     })
 
     it("Should deposit specified amount into specified client account", async ()=>{

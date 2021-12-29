@@ -78,13 +78,8 @@ app.post('/clients/:id/accounts', async (req, res)=>{
 app.get('/clients/:id/accounts', async (req, res)=>{
     try {
         const {amountLessThan, amountGreaterThan} = req.query;
-        if(amountLessThan){
-            const clientAccounts: Account[] = await clientService.getAccountsByRangeForClient(req.params.id, Number(amountLessThan), Number(amountGreaterThan));
-            res.send(clientAccounts);
-        } else {
-            const clientAccounts: Account[] = await clientService.getAccountsForClient(req.params.id);
-            res.send(clientAccounts);
-        }
+        const clientAccounts: Account[] = await clientService.getAccountsForClient(req.params.id, Number(amountLessThan), Number(amountGreaterThan));
+        res.send(clientAccounts);
     } catch (error) {
         errorHandler(error, req, res);
     }

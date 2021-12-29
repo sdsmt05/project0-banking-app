@@ -7,9 +7,7 @@ import { ResourceNotFoundError, InsufficientFundsError } from "../errors/error-h
 export interface ClientService{
     addAccountToClient(id: string, account: Account): Promise<Client>;
 
-    getAccountsForClient(id: string): Promise<Account[]>;
-
-    getAccountsByRangeForClient(id: string, amountLessThan: number, amountGreaterThan: number): Promise<Account[]>;
+    getAccountsForClient(id: string, amountLessThan?: number, amountGreaterThan?: number): Promise<Account[]>;
 
     depositAmount(id: string, accountName: string, amount: number): Promise<Account>;
 
@@ -26,15 +24,18 @@ export class ClientServiceAccount implements ClientService{
         return await this.clientDAO.updateClient(client);
     }
 
-    async getAccountsForClient(id: string): Promise<Account[]> {
+    async getAccountsForClient(id: string, amountLessThan: number = undefined, amountGreaterThan: number = undefined): Promise<Account[]> {
         const client: Client = await this.clientDAO.getClientById(id);
-        return client.accounts;
-    }
-
-    async getAccountsByRangeForClient(id: string, amountLessThan: number, amountGreaterThan: number): Promise<Account[]> {
         let validAccounts: Account[] = [];
-        const accounts: Account[] = await this.getAccountsForClient(id);
-        validAccounts = accounts.filter(element => element.balance <= amountLessThan && element.balance > amountGreaterThan);
+        if(amountLessThan && amountGreaterThan){
+            validAccounts = client.accounts.filter(element => element.balance <= amountLessThan && element.balance > amountGreaterThan);
+        } else if(amountLessThan && !amountGreaterThan){
+            validAccounts = client.accounts.filter(element => element.balance <= amountLessThan);
+        } else if(!amountLessThan && amountGreaterThan){
+            validAccounts = client.accounts.filter(element => element.balance >= amountGreaterThan);
+        } else {
+            validAccounts = client.accounts;
+        }
         return validAccounts;
     }
 
